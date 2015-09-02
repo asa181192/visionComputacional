@@ -1,18 +1,10 @@
 import cv2
 import numpy as np
 import random 
-import ruido
+import argparse 
+import sys
 
-image = cv2.imread('test.jpg')#accedemos a al ruta donde se encuentra la imagen
-image2 = cv2.imread('test.jpg')
-(h,w) =image2.shape[:2] # se obtiene la altura y la anchura de la matriz por el metodo shape 
-ruidos = ruido.sal(image2,0.30,w,h) ;  # se envia al metodo sal la imagen con la probabilidad y sus dimensiones . 
-
-matriz = np.hstack([image,ruidos]) # se unen las dos imagenes la original y modificada en un solo vector para mostrarse
-                                   #en una sola ventana 
-cv2.imshow("Ruido",matriz)
-cv2.waitKey(0)
-
+np.set_printoptions(threshold=sys.maxint) #Resuelve el error de los puntos suspensivos en la impresion de la imagen
 
 def sal(pixeles, intensidad,altura,anchura): # se obtiene por parametros la imagen , la intesidad que es una probabilidad 
 					     # en float de 0.1 a -1 , la altura y la anchura de la imagen para recorrer 
@@ -33,3 +25,23 @@ def sal(pixeles, intensidad,altura,anchura): # se obtiene por parametros la imag
 							
 
 	return pixeles # regresamos la matriz de la iamgen 
+	
+	
+ap =argparse.ArgumentParser()
+ap.add_argument("-i","--image",required = True ,help="Path to the image")
+args =  vars(ap.parse_args())
+
+image = cv2.imread(args["image"])#accedemos a al ruta donde se encuentra la imagen
+image2 = cv2.imread(args["image"])
+(h,w) =image2.shape[:2] # se obtiene la altura y la anchura de la matriz por el metodo shape 
+ruidos = sal(image2,0.30,w,h) ;  # se envia al metodo sal la imagen con la probabilidad y sus dimensiones . 
+
+matriz = np.hstack([image,ruidos]) # se unen las dos imagenes la original y modificada en un solo vector para mostrarse
+                                   #en una sola ventana
+sys.stdout = open('matriz.txt', 'w')
+print ruidos				#imprime la imagen a un documento de texto 			 
+cv2.imshow("Ruido",matriz)
+cv2.imwrite(args["image"]+"mod.jpg",ruidos); #Guarda la imagen que fue modificada 
+cv2.waitKey(0)
+
+
